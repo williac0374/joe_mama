@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    <title>Joe Mama</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>Joe Mama</title>
 
 <style>
 body{
@@ -35,7 +35,7 @@ window.onerror = function(message, source, lineno, colno, error) {let code = loc
 canvas.width=640;
 canvas.height=360;
 j_walk=null;joe=null
-
+setTimeout(function(){canvas.style.width = window.innerWidth+'px';canvas.style.height = window.innerHeight+'px'},10);
 function start(){
   ///sets up sprites
   b_drop = draw_set_image('joeParts/joe_background.png')
@@ -59,16 +59,18 @@ joe = {x:canvas.width/2, y:270-128, dx:1, spr:j_kick, frm:0}
     if(joe.frm>=joe.spr.width/joe.spr.height)joe.frm=0
   },200);
   change_frame();
+start = {x:0,y:0}
+end = {x:0,y:0}
 }
 function change_frame(){
   joe.spr=choose(j_walk,j_punch,j_kick)
   joe.dx*=-1
-  setTimeout(function(){change_frame()},Math.random()*2000);
+setTimeout(function(){change_frame()},Math.random()*2000);
 }
 function loop(){
-  if(joe.spr==j_walk){joe.x+=joe.dx}
-  if(joe.x>canvas.width-128){joe.dx*=-1}
-  if(joe.x<128){joe.dx*=-1}
+if(joe.spr==j_walk){joe.x+=joe.dx}
+if(joe.x>canvas.width-128){joe.dx*=-1}
+if(joe.x<128){joe.dx*=-1}
   input()
   document.title = mouse_y
 }
@@ -77,14 +79,36 @@ function draw(){
   draw_image(b_drop,0,0,canvas.width,canvas.height)
   draw_strip(joe.x,joe.y,joe.spr,joe.frm)
   //draw_text(100,100,mouse_x+' , '+mouse_y,24)
+  draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
+  draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
 }
 
 function input(){
+  /////////////////////////////////////////////
+  ///ZOOM CORRECTION
+  //////////////////////////////////////////////
+  var rect = canvas.getBoundingClientRect()
+  var scaleX = canvas.width / rect.width;
+  var scaleY = canvas.height / rect.height;
+  mx = mouse_x  * scaleX;
+  my = mouse_y  * scaleY;
+  /////////////////////////////////////////////
+  gesture();
+}
+
+
+
+function gesture(){
   if(mouse_check_pressed()){
-    canvas.style.width = window.innerWidth+'px'
-    canvas.style.height = window.innerHeight+'px'
+    start.x = mx;
+    start.y = my;
+  }
+  if(mouse_check_released()){
+    end.x = mx;
+    end.y = my;
   }
 }
+
 
 function draw_strip(x,y,strip,frame){
   var scale = 1
@@ -92,12 +116,13 @@ function draw_strip(x,y,strip,frame){
   let frames = strip.width/strip.height
   if(frame>=frames) frame=frames-1 // locks it at last frame if asked to draw more frames than it has
   //draw_image(img,x,y,w,h,rot,ox,oy,source_x,source_y,source_w,source_h){
-  draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
+    draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
+    
+    
+  }
+  </script>
+  <script type='text/javascript' src='engine.js'></script>
   
+  </body>
+  </html>
   
-}
-</script>
-<script type='text/javascript' src='engine.js'></script>
-
-</body>
-</html>
