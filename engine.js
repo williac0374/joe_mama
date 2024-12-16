@@ -202,7 +202,6 @@ function mDown(){
   }
 }
 function tDown(){
-   e.preventDefault(); 
   if (!mouse_down) {
     mouse_down = true;
     mouse_pressed = true;
