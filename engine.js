@@ -222,39 +222,39 @@ function mMove(e) {
   mouse_x -= canvas.offsetLeft;
   mouse_y -= canvas.offsetTop;
 };
-if(navigator.userAgent.includes("Android")){
-  addEventListener("touchstart", function(e){
-    e.preventDefault();
-    var touch = e.touches[0];
+
+addEventListener("touchstart", function(e){
+  e.preventDefault();
+  var touch = e.touches[0];
+  mouse_x = touch.clientX - canvas.offsetLeft;
+  mouse_y = touch.clientY - canvas.offsetTop;
+  if (!mouse_down) {
+    mouse_down = true;
+    mouse_pressed = true;
+  }else{
+    mouse_down = true;
+  }
+});
+addEventListener("touchmove", function(e){
+  e.preventDefault();
+  var touch = e.touches[0];
+  if(mouse_down==true){
     mouse_x = touch.clientX - canvas.offsetLeft;
     mouse_y = touch.clientY - canvas.offsetTop;
-    if (!mouse_down) {
-      mouse_down = true;
-      mouse_pressed = true;
-    }else{
-      mouse_down = true;
-    }
-  });
-  addEventListener("touchmove", function(e){
-    e.preventDefault();
-    var touch = e.touches[0];
-    if(mouse_down==true){
-      mouse_x = touch.clientX - canvas.offsetLeft;
-      mouse_y = touch.clientY - canvas.offsetTop;
-    }
-  });
-  addEventListener("touchend", function(e){
-    e.preventDefault();
-    if (!mouse_down) {
-      mouse_down = false;
-      mouse_pressed = false;
-    }
-    else{
-      mouse_down = false;
-      mouse_released = true;
-    }
-  });
-}
+  }
+});
+addEventListener("touchend", function(e){
+  e.preventDefault();
+  if (!mouse_down) {
+    mouse_down = false;
+    mouse_pressed = false;
+  }
+  else{
+    mouse_down = false;
+    mouse_released = true;
+  }
+});
+
 addEventListener("keydown", kDown, false);//16 is shift e.keyCode;
 addEventListener("keyup", kUp, false);
 addEventListener("mousedown",mDown,false);
