@@ -201,6 +201,15 @@ function mDown(){
     mouse_down = true;
   }
 }
+function tDown(){
+   e.preventDefault(); 
+  if (!mouse_down) {
+    mouse_down = true;
+    mouse_pressed = true;
+  }else{
+    mouse_down = true;
+  }
+}
 function mUp(){
   if (!mouse_down) {
     mouse_down = false;
@@ -211,6 +220,18 @@ function mUp(){
     mouse_released = true;
   }
 }
+function tUp(){
+   e.preventDefault(); 
+  if (!mouse_down) {
+    mouse_down = false;
+    mouse_pressed = false;
+  }
+  else{
+    mouse_down = false;
+    mouse_released = true;
+  }
+}
+
 function mMove(e) {
   if (e.pageX != undefined && e.pageY != undefined) {
     mouse_x = e.pageX;
@@ -223,37 +244,24 @@ function mMove(e) {
   mouse_y -= canvas.offsetTop;
 };
 
-addEventListener("touchstart", function(e){
-  e.preventDefault();
-  var touch = e.touches[0];
-  mouse_x = touch.clientX - canvas.offsetLeft;
-  mouse_y = touch.clientY - canvas.offsetTop;
-  if (!mouse_down) {
-    mouse_down = true;
-    mouse_pressed = true;
-  }else{
-    mouse_down = true;
+function tMove(e) {
+  let touch;
+  if (e.touches && e.touches.length > 0) {
+    touch = e.touches[0]; // Get the first touch point
+    mouse_x = touch.pageX;
+    mouse_y = touch.pageY;
+  } else if (e.pageX != undefined && e.pageY != undefined) {
+    mouse_x = e.pageX;
+    mouse_y = e.pageY;
+  } else {
+    mouse_x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    mouse_y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
   }
-});
-addEventListener("touchmove", function(e){
-  e.preventDefault();
-  var touch = e.touches[0];
-  if(mouse_down==true){
-    mouse_x = touch.clientX - canvas.offsetLeft;
-    mouse_y = touch.clientY - canvas.offsetTop;
-  }
-});
-addEventListener("touchend", function(e){
-  e.preventDefault();
-  if (!mouse_down) {
-    mouse_down = false;
-    mouse_pressed = false;
-  }
-  else{
-    mouse_down = false;
-    mouse_released = true;
-  }
-});
+  mouse_x -= canvas.offsetLeft;
+  mouse_y -= canvas.offsetTop;
+}
+
+
 
 addEventListener("keydown", kDown, false);//16 is shift e.keyCode;
 addEventListener("keyup", kUp, false);
@@ -261,6 +269,12 @@ addEventListener("mousedown",mDown,false);
 addEventListener("mouseup",mUp,false);
 addEventListener("mousemove",mMove,false);
 addEventListener('wheel', wheel,false);
+addEventListener("touchstart", tDown, false);
+addEventListener("touchend", tUp, false);
+addEventListener("touchmove", tMove, false);
+//addEventListener("touchenter", __touchlistener__, false);
+//addEventListener("touchleave", __touchlistener__, false);
+//addEventListener("touchcancel", __touchlistener__, false);
 function wheel(e) {
   if (e.deltaY < 0) {
     wheelDir++;
