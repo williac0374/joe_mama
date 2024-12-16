@@ -272,7 +272,7 @@ addEventListener("mousemove",mMove,false);
 addEventListener('wheel', wheel,false);
 addEventListener("touchstart", tDown, false);
 addEventListener("touchend", tUp, false);
-//addEventListener("touchmove", tMove, false);
+addEventListener("touchmove", tMove, false);
 //addEventListener("touchenter", __touchlistener__, false);
 //addEventListener("touchleave", __touchlistener__, false);
 //addEventListener("touchcancel", __touchlistener__, false);
