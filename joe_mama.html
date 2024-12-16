@@ -33,32 +33,39 @@ j_walk=null;joe=null
 
 function start(){
   ///sets up sprites
-  b_drop = draw_set_image('joeBackDrop.png')
+  b_drop = draw_set_image('joeParts/joe_background.png')
   
-  j_walk =  draw_set_image('joe_walking.png');
+  j_walk =  draw_set_image('joeParts/joe_walking.png');
   j_walk.loaded=false;
 j_walk.onload = function () {j_walk.loaded=true};
   
-  j_punch =  draw_set_image('joe_punching.png');
+  j_punch =  draw_set_image('joeParts/joe_punching.png');
   j_punch.loaded=false;
 j_punch.onload = function () {j_punch.loaded=true};
   
-  j_kick =  draw_set_image('joe_kick.png');
+  j_kick =  draw_set_image('joeParts/joe_kicking.png');
   j_kick.loaded=false;
 j_kick.onload = function () {j_kick.loaded=true};
   
   ///////////////////////////////////////////////////////////
-joe = {x:270, y:305-128, spr:j_walk, frm:0}
+joe = {x:canvas.width/2, y:270-128, dx:1, spr:j_kick, frm:0}
   setInterval(function(){
     joe.frm++
     if(joe.frm>=joe.spr.width/joe.spr.height)joe.frm=0
-  },100);
-  setInterval(function(){
-    joe.spr=choose(j_walk,j_punch,j_kick)
-  },5000);
+  },200);
+  change_frame();
+}
+function change_frame(){
+  joe.spr=choose(j_walk,j_punch,j_kick)
+  joe.dx*=-1
+  setTimeout(function(){change_frame()},Math.random()*2000);
 }
 function loop(){
+  if(joe.spr==j_walk){joe.x+=joe.dx}
+  if(joe.x>canvas.width-128){joe.dx*=-1}
+  if(joe.x<128){joe.dx*=-1}
   input()
+  document.title = mouse_y
 }
 
 function draw(){
@@ -75,12 +82,12 @@ function input(){
 }
 
 function draw_strip(x,y,strip,frame){
-  scale = 0.75
+  var scale = 1
   if (strip.loaded==false) return;
-  let frame_width = strip.height
   let frames = strip.width/strip.height
   if(frame>=frames) frame=frames-1 // locks it at last frame if asked to draw more frames than it has
-  draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,frame_width*frame,0,frame_width,frame_width)
+  //draw_image(img,x,y,w,h,rot,ox,oy,source_x,source_y,source_w,source_h){
+  draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
   
   
 }
