@@ -270,7 +270,7 @@ addEventListener("mouseup",mUp,false);
 addEventListener("mousemove",mMove,false);
 addEventListener('wheel', wheel,false);
 addEventListener("touchstart", tDown, false);
-//addEventListener("touchend", tUp, false);
+addEventListener("touchend", tUp, false);
 //addEventListener("touchmove", tMove, false);
 //addEventListener("touchenter", __touchlistener__, false);
 //addEventListener("touchleave", __touchlistener__, false);
