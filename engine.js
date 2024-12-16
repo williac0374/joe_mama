@@ -221,7 +221,7 @@ function mUp(){
   }
 }
 function tUp(){
-   e.preventDefault(); 
+   
   if (!mouse_down) {
     mouse_down = false;
     mouse_pressed = false;
@@ -245,6 +245,7 @@ function mMove(e) {
 };
 
 function tMove(e) {
+  e.preventDefault(); 
   let touch;
   if (e.touches && e.touches.length > 0) {
     touch = e.touches[0]; // Get the first touch point
