@@ -62,7 +62,7 @@ function change_frame(){
 }
 function loop(){
   if(joe.spr==j_walk){joe.x+=joe.dx}
-  if(joe.x>canvas.width-220){joe.dx*=-1}
+  if(joe.x>canvas.width-128){joe.dx*=-1}
   if(joe.x<128){joe.dx*=-1}
   input()
   document.title = mouse_y
