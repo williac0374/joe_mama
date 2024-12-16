@@ -224,6 +224,7 @@ function mMove(e) {
 };
 if(navigator.userAgent.includes("Android")){
   addEventListener("touchstart", function(e){
+    e.preventDefault();
     var touch = e.touches[0];
     mouse_x = touch.clientX - canvas.offsetLeft;
     mouse_y = touch.clientY - canvas.offsetTop;
@@ -235,6 +236,7 @@ if(navigator.userAgent.includes("Android")){
     }
   });
   addEventListener("touchmove", function(e){
+    e.preventDefault();
     var touch = e.touches[0];
     if(mouse_down==true){
       mouse_x = touch.clientX - canvas.offsetLeft;
@@ -242,6 +244,7 @@ if(navigator.userAgent.includes("Android")){
     }
   });
   addEventListener("touchend", function(e){
+    e.preventDefault();
     if (!mouse_down) {
       mouse_down = false;
       mouse_pressed = false;
