@@ -68,8 +68,8 @@ j_kick.onload = function () {j_kick.loaded=true};
   ///////////////////////////////////////////////////////////
 joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100};
 icon = {x:canvas.width-200,y:10,spr:j_head}
-  for(let i = 0; i < 50; i ++){
-nmes.push({x:irandom(-10000), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
+  for(let i = 0; i < 100; i ++){
+nmes.push({x:(i*-100)+irandom(50), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
   }
   setInterval(function(){
     if(joe.spr==j_walk || joe.spr==j_walk_hurt){
