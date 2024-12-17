@@ -36,7 +36,11 @@ canvas.width=640;
 canvas.height=360;
 j_walk=null;joe=null
 died=false;
-setTimeout(function(){canvas.style.width = window.innerWidth+'px';canvas.style.height = window.innerHeight+'px'},10);
+setTimeout(function(){
+  canvas.style.width = window.innerWidth+'px';
+  canvas.style.height = window.innerHeight+'px';
+},10);
+nmes= [];
 function start(){
   ///sets up sprites
   b_drop = draw_set_image('joeParts/joe_background.png')
@@ -44,7 +48,7 @@ function start(){
   p_spr = draw_set_image('joeParts/punchy2.png')
   p_spr.loaded=false;
 p_spr.onload = function () {p_spr.loaded=true};
-  
+  j_head = draw_set_image('joeParts/head.png')
   j_walk =  draw_set_image('joeParts/joe_walking.png');
   j_walk.loaded=false;
 j_walk.onload = function () {j_walk.loaded=true};
@@ -62,8 +66,11 @@ j_punch.onload = function () {j_punch.loaded=true};
 j_kick.onload = function () {j_kick.loaded=true};
   
   ///////////////////////////////////////////////////////////
-joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100}
-punchy = {x:0, y:146, dx:0.1, spr:p_spr, frm:0, hp:100}
+joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100};
+icon = {x:canvas.width-200,y:10,spr:j_head}
+  for(let i = 0; i < 100; i ++){
+nmes.push({x:irandom(-10000), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
+  }
   setInterval(function(){
     if(joe.spr==j_walk || joe.spr==j_walk_hurt){
       if(joe.dx!=0){
@@ -85,28 +92,53 @@ setTimeout(function(){change_frame()},Math.random()*2000);
 }
 function loop(){
   if(died==false){
-    if(punchy.frm==0){
-      punchy.dx = choose(0,0.1,0.3,0,1)
+    for(let i = nmes.length; i > 0; i--){
+    if(nmes[i-1].frm==0){nmes[i-1].dx = choose(0,0.1,0.3,0,1)}
+      nmes[i-1].x+=nmes[i-1].dx // moves nmes[i] if applicable
+      // collision detection
+      if(nmes[i-1].x>joe.x-32 && joe.spr==j_walk){ // joe is hit while walking
+        joe.x+=40
+        joe.hp-=20
+        joe.spr=j_walk_hurt
+        joe.frm = 3;
+        joe.dx=0;
+        nmes[i-1].frm=1;
+      setTimeout(function(){nmes[i-1].frm=0},600);
+      setTimeout(function(){joe.spr=j_walk},600);
+      }
+      if(nmes[i-1].x>joe.x-60 && joe.spr==j_punch){ // joe is hit while punching and extended
+        if(joe.frm==3){
+          nmes[i-1].x-=64;
+          nmes[i-1].hp-=10;
+          nmes[i-1].dx=0;
+          nmes[i-1].frm=2;
+          if(nmes[i-1].hp<=0){
+            nmes.splice(i-1,1)
+          }else{
+          setTimeout(function(){nmes[i-1].frm=0},600);
+          }
+        }else{
+          joe.x+=2;
+          joe.hp-=2;
+        }
+      }
+      if(nmes[i-1].x>joe.x-74 && joe.spr==j_kick){ // joe is hit while kicking and extended
+        if(joe.frm==2){
+          nmes[i-1].x-=128;
+          nmes[i-1].hp-=30;
+          nmes[i-1].dx=0;nmes[i-1].frm=2;
+          if(nmes[i-1].hp<=0){
+            nmes.splice(i-1,1)
+          }else{
+          setTimeout(function(){nmes[i-1].frm=0},800);
+          }
+        }else{
+          joe.x+=2;
+          joe.hp-=2;
+        }
+      }
+      
     }
-    punchy.x+=punchy.dx // moves punchy if applicable
-    // collision detection
-    if(punchy.x>joe.x-32 && joe.spr==j_walk){ // joe is hit while walking
-      joe.x+=40
-      joe.hp-=20
-      joe.spr=j_walk_hurt
-      joe.frm = 3;
-      joe.dx=0;
-      punchy.frm=1;
-    setTimeout(function(){punchy.frm=0},600);
-    setTimeout(function(){joe.spr=j_walk},600);
-    }
-    if(punchy.x>joe.x-60 && joe.spr==j_punch){ // joe is hit while punching and extended
-    if(joe.frm==3){punchy.x-=64;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2;joe.hp-=2}
-    }
-    if(punchy.x>joe.x-74 && joe.spr==j_kick){ // joe is hit while kicking and extended
-    if(joe.frm==2){punchy.x-=128;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2;joe.hp-=2}
-    }
-    
     if(joe.spr==j_walk){
       if(end.x>0){
         if(Math.abs((joe.x+64) - end.x)<10){
@@ -126,7 +158,6 @@ function loop(){
         draw_text(0, 0, "YOU DIED!!!!", 100)
         run=false;
       },100)
-      
       setTimeout(function(){
       if(confirm('PLAY AGAIN?')){location.reload()}
       },6000)
@@ -147,11 +178,16 @@ function draw_hbar(who,xoff,yoff,width,height,hp){
 function draw(){
   draw_image(b_drop,0,0,canvas.width,canvas.height)
   
-if(joe.hp>0){draw_strip(joe.x,joe.y,joe.spr,joe.frm);draw_hbar(joe,0,-20,128,16,joe.hp)}
-  draw_strip(punchy.x,punchy.y,punchy.spr,punchy.frm)
+  draw_image(icon.spr,icon.x,icon.y)
+  if(joe.hp>0){draw_strip(joe.x,joe.y,joe.spr,joe.frm);
+  draw_hbar(icon,40,6,128,16,joe.hp)}
+  for(let i = nmes.length; i > 0; i--){
+    draw_strip(nmes[i-1].x,nmes[i-1].y,nmes[i-1].spr,nmes[i-1].frm)
+    draw_hbar(nmes[i-1],40,0,32,8,nmes[i-1].hp)
+  }
   //draw_text(100,100,mouse_x+' , '+mouse_y,24)
- // draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
- // draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
+  // draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
+  // draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
   //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
   // joes sprite size visualizer
   //draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
