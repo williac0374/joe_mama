@@ -1,273 +1,110 @@
-by<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#000000">
-<title>Joe Mama</title>
+Load
+Save
+Zoom
+getFun
+Help
+B-Set
+B-Go
+Find
+Pretty
+Compress
+Expand
+Base64
+TEST!
 
-<style>
-body{
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: black;
-  
-}
-canvas {
-  // border: 2px solid #000;
-  background-color: white;
-}
-</style>
-</head>
-
-<body>
-<canvas id="canvas"></canvas>
-
-<script>
-window.onerror = function(message, source, lineno, colno, error) {let code = localStorage.getItem("codeIDE");let getScriptLine = code => code.split("<script>")[0].split("\n").length;let ln = (getScriptLine(code)-1) + lineno;msg = message+" , line :"+ ln+" , column: " +colno+ " , " +error;let errorCursor = {"line":ln,"ch":colno,"sticky":null};localStorage.setItem("errorCursorIDE",JSON.stringify(errorCursor));alert(msg);window.close();}
-mx = my = 0;
-canvas.width=640;
-canvas.height=360;
-j_walk=null;joe=null
-died=false;
-setTimeout(function(){
-  canvas.style.width = window.innerWidth+'px';
-  canvas.style.height = window.innerHeight+'px';
-},10);
-nmes= [];
-function start(){
-  ///sets up sprites
-  b_drop = draw_set_image('joeParts/joe_background.png')
-  
-  p_spr = draw_set_image('joeParts/punchy2.png')
-  p_spr.loaded=false;
-p_spr.onload = function () {p_spr.loaded=true};
-  j_head = draw_set_image('joeParts/head.png')
-  j_walk =  draw_set_image('joeParts/joe_walking.png');
-  j_walk.loaded=false;
-j_walk.onload = function () {j_walk.loaded=true};
-  
-  j_walk_hurt =  draw_set_image('joeParts/joe_walking_hurt.png');
-  j_walk_hurt.loaded=false;
-j_walk_hurt.onload = function () {j_walk_hurt.loaded=true};
-  
-  j_punch =  draw_set_image('joeParts/joe_punching.png');
-  j_punch.loaded=false;
-j_punch.onload = function () {j_punch.loaded=true};
-  
-  j_kick =  draw_set_image('joeParts/joe_kicking.png');
-  j_kick.loaded=false;
-j_kick.onload = function () {j_kick.loaded=true};
-  
-  ///////////////////////////////////////////////////////////
-joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100};
-icon = {x:canvas.width-200,y:10,spr:j_head}
-  for(let i = 0; i < 100; i ++){
-nmes.push({x:(i*-100)+irandom(50), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
+169
   }
-  setInterval(function(){
-    if(joe.spr==j_walk || joe.spr==j_walk_hurt){
-      if(joe.dx!=0){
-        joe.frm++
-      }
-    }else{
-      joe.frm++
-    }
-    if(joe.frm>=joe.spr.width/joe.spr.height)joe.frm=0
-  },200);
-  //change_frame();
-start = {x:-100,y:0}
-end = {x:-100,y:0}
+170
+  joe.hp+=0.01
+171
+  if(joe.hp>100){joe.hp=100}
+172
 }
-function change_frame(){
-  joe.spr=choose(j_walk,j_walk,j_walk,j_walk,j_walk,j_walk,j_punch,j_kick,j_punch,j_kick)
-  //joe.dx*=-1
-setTimeout(function(){change_frame()},Math.random()*2000);
-}
-function loop(){
-  if(died==false){
-    for(let i = nmes.length; i > 0; i--){
-    if(nmes[i-1].frm==0){nmes[i-1].dx = choose(0,0.1,0.3,0,1)}
-      nmes[i-1].x+=nmes[i-1].dx // moves nmes[i] if applicable
-      // collision detection
-      if(nmes[i-1].x>joe.x-32 && joe.spr==j_walk){ // joe is hit while walking
-        joe.x+=40
-        joe.hp-=20
-        joe.spr=j_walk_hurt
-        joe.frm = 3;
-        joe.dx=0;
-        nmes[i-1].frm=1;
-      setTimeout(function(){nmes[i-1].frm=0},600);
-      setTimeout(function(){joe.spr=j_walk},600);
-      }
-      if(nmes[i-1].x>joe.x-60 && joe.spr==j_punch){ // joe is hit while punching and extended
-        if(joe.frm==3){
-          nmes[i-1].x-=64;
-          nmes[i-1].hp-=10;
-          nmes[i-1].dx=0;
-          nmes[i-1].frm=2;
-          if(nmes[i-1].hp<=0){
-            nmes.splice(i-1,1)
-          }else{
-          setTimeout(function(){nmes[i-1].frm=0},600);
-          }
-        }else{
-          joe.x+=2;
-          joe.hp-=2;
-        }
-      }
-      if(nmes[i-1].x>joe.x-74 && joe.spr==j_kick){ // joe is hit while kicking and extended
-        if(joe.frm==2){
-          nmes[i-1].x-=128;
-          nmes[i-1].hp-=30;
-          nmes[i-1].dx=0;nmes[i-1].frm=2;
-          if(nmes[i-1].hp<=0){
-            nmes.splice(i-1,1)
-          }else{
-          setTimeout(function(){nmes[i-1].frm=0},800);
-          }
-        }else{
-          joe.x+=2;
-          joe.hp-=2;
-        }
-      }
-      
-    }
-    if(joe.spr==j_walk){
-      if(end.x>0){
-        if(Math.abs((joe.x+64) - end.x)<10){
-          joe.dx=0;
-        }
-      }
-      joe.x+=joe.dx
-    } // moves joe if applicable
-    
-  if(joe.spr==j_punch&&joe.frm==4){joe.spr=j_walk} // after punch sprite change
-  if(joe.spr==j_kick&&joe.frm==3){joe.spr=j_walk} // after kick sprite change
-    input()
-    if(joe.hp<=0){
-      died=true;
-      setTimeout(function(){
-        draw_set_color(255,0,0);
-        draw_text(0, 0, "YOU DIED!!!!", 100)
-        run=false;
-      },100)
-      setTimeout(function(){
-      if(confirm('PLAY AGAIN?')){location.reload()}
-      },6000)
-    }
-  }
-  document.title=joe.hp
-}
+173
 function draw_hbar(who,xoff,yoff,width,height,hp){
+174
   
+175
   draw_set_color(255,255,255)
+176
   draw_rectangle(who.x+xoff, who.y+yoff, width,height,false,0,0,0)
+177
   draw_set_color(0,255,0)
+178
   draw_set_linewidth(height*0.8)
+179
   draw_line(who.x+xoff+2, who.y+yoff+height*0.5, (who.x+xoff+(width*(hp/100)))-2 , who.y+yoff+height*0.5)
+180
   //draw_set_linedash(dash)
+181
   
+182
 }
+183
 function draw(){
+184
+  if(shake==true){
+185
+     canvas.style.transform = `translate(${irandom(3)}px, ${irandom(3)}px)`;
+186
+  }
+187
   draw_image(b_drop,0,0,canvas.width,canvas.height)
+188
   
+189
   draw_image(icon.spr,icon.x,icon.y)
+190
   if(joe.hp>0){draw_strip(joe.x,joe.y,joe.spr,joe.frm);
+191
   draw_hbar(icon,40,6,128,16,joe.hp)}
+192
   for(let i = nmes.length; i > 0; i--){
+193
     draw_strip(nmes[i-1].x,nmes[i-1].y,nmes[i-1].spr,nmes[i-1].frm)
+194
     draw_hbar(nmes[i-1],40,0,32,8,nmes[i-1].hp)
+195
   }
-  //draw_text(100,100,mouse_x+' , '+mouse_y,24)
+196
+  draw_set_color(0,0,0)
+197
+  if(nmes.length>0){
+198
+  draw_text(10,10, nmes.length+' punchies left!',24)
+199
+  }else{
+200
+    draw_text(10,10, ' no punchies left WINNER!!!!!!',24)
+201
+  }
+202
   // draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
+203
   // draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
+204
   //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
+205
   // joes sprite size visualizer
+206
   //draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
+207
 }
+208
 var scaleX = 1
+209
 var scaleY = 1
+210
 function input(){
+211
   /////////////////////////////////////////////
+212
   ///ZOOM CORRECTION
+213
   //////////////////////////////////////////////
+214
   var rect = canvas.getBoundingClientRect()
+215
   scaleX = canvas.width / rect.width;
+216
   scaleY = canvas.height / rect.height;
-  mx = mouse_x  * scaleX;
-  my = mouse_y  * scaleY;
-  /////////////////////////////////////////////
-  gesture();
-}
-
-
-
-function gesture(){
-  let dis = 50;
-  let dir = 0;
-  let swipe='none'
-  
-  if(mouse_check_pressed()){
-    start.x = mx;
-    start.y = my;
-  }
-  if(mouse_check_released()){
-    swipe='none'
-    end.x = mx;
-    end.y = my;
-    if(point_distance(start.x,start.y,end.x,end.y)>dis){
-      dir = point_direction(start.x,start.y,end.x,end.y)
-    if(dir>45 && dir<135){swipe='up'}
-    if(dir<=45 && dir>=-45){swipe='right'}
-    if(dir<-45 && dir>-135){swipe='down'}
-    if(dir>=135 || dir<=-135){swipe='left'}
-    }
-    if( swipe=='none'){ // makes joe walk towards touch
-      if(end.x<joe.x){
-      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = -1}else{joe.dx = -2}
-      }else{
-      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = 1}else{joe.dx = 2}
-      }
-      joe.spr=j_walk;
-    }
-    if( swipe=='left'){ // makes joe punch
-      joe.dx=0;
-      joe.frm=2;
-      joe.spr=j_punch;
-    }
-    if( swipe=='up'){ // makes joe kick
-      joe.dx=0;
-      joe.frm=1;
-      joe.spr=j_kick;
-    }
-  }
-  
-  
-}
-
-
-function draw_strip(x,y,strip,frame){
-  var scale = 1
-  if (strip.loaded==false) return;
-  let frames = strip.width/strip.height
-  if(frame>=frames) frame=frames-1 // locks it at last frame if asked to draw more frames than it has
-  //draw_image(img,x,y,w,h,rot,ox,oy,source_x,source_y,source_w,source_h){
-    draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
-    
-    
-  }
-  </script>
-  <script type='text/javascript' src='engine.js'></script>
-  
-  </body>
-  </html>
-  
-  
-  
