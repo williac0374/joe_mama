@@ -201,15 +201,6 @@ function mDown(){
     mouse_down = true;
   }
 }
-function tDown(){
-
-  if (!mouse_down) {
-    mouse_down = true;
-    mouse_pressed = true;
-  }else{
-    mouse_down = true;
-  }
-}
 function mUp(){
   if (!mouse_down) {
     mouse_down = false;
@@ -220,49 +211,36 @@ function mUp(){
     mouse_released = true;
   }
 }
-function tUp(){
-   
-  if (!mouse_down) {
-    mouse_down = false;
-    mouse_pressed = false;
-  }
-  else{
-    mouse_down = false;
-    mouse_released = true;
-  }
-}
-
 function mMove(e) {
-  if (e.pageX != undefined && e.pageY != undefined) {
-    mouse_x = e.pageX;
-    mouse_y = e.pageY;
+  let x, y;
+  
+  // Check for touch input
+  if (e.touches) {
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } 
+  // Otherwise use mouse input
+  else if (e.pageX != undefined && e.pageY != undefined) {
+    x = e.pageX;
+    y = e.pageY;
   } else {
-    mouse_x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-    mouse_y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+    y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
   }
-  mouse_x -= canvas.offsetLeft;
-  mouse_y -= canvas.offsetTop;
-};
 
-function tMove(e) {
-  e.preventDefault(); 
-  let touch;
-  if (e.touches && e.touches.length > 0) {
-    touch = e.touches[0]; // Get the first touch point
-    mouse_x = touch.pageX;
-    mouse_y = touch.pageY;
-  } else if (e.pageX != undefined && e.pageY != undefined) {
-    mouse_x = e.pageX;
-    mouse_y = e.pageY;
-  } else {
-    mouse_x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-    mouse_y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-  }
-  mouse_x -= canvas.offsetLeft;
-  mouse_y -= canvas.offsetTop;
+  mouse_x = x - canvas.offsetLeft;
+  mouse_y = y - canvas.offsetTop;
+
+  e.preventDefault(); // Prevents default scrolling behavior
+}
+function touchStart(e) {
+  mMove(e);
+  mDown();
 }
 
-
+function touchEnd(e) {
+  mUp();
+}
 
 addEventListener("keydown", kDown, false);//16 is shift e.keyCode;
 addEventListener("keyup", kUp, false);
@@ -270,12 +248,10 @@ addEventListener("mousedown",mDown,false);
 addEventListener("mouseup",mUp,false);
 addEventListener("mousemove",mMove,false);
 addEventListener('wheel', wheel,false);
-addEventListener("touchstart", tDown, false);
-addEventListener("touchend", tUp, false);
-addEventListener("touchmove", tMove, false);
-//addEventListener("touchenter", __touchlistener__, false);
-//addEventListener("touchleave", __touchlistener__, false);
-//addEventListener("touchcancel", __touchlistener__, false);
+// Add touch event listeners with { passive: false }
+addEventListener("touchstart", touchStart, { passive: false });
+addEventListener("touchend", touchEnd, { passive: false });
+addEventListener("touchmove", mMove, { passive: false });
 function wheel(e) {
   if (e.deltaY < 0) {
     wheelDir++;
