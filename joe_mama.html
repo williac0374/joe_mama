@@ -92,6 +92,8 @@ function loop(){
   }
   
 if(joe.spr==j_walk){joe.x+=joe.dx} // moves joe if applicable
+if(joe.spr==j_punch&&joe.frm==4){joe.spr=j_walk} // after punch sprite change
+if(joe.spr==j_kick&&joe.frm==3){joe.spr=j_walk} // after kick sprite change
   input()
 }
 
@@ -100,8 +102,8 @@ function draw(){
   draw_strip(joe.x,joe.y,joe.spr,joe.frm)
   draw_strip(punchy.x,punchy.y,punchy.spr,punchy.frm)
   //draw_text(100,100,mouse_x+' , '+mouse_y,24)
-  draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
-  draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
+  //draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
+  //draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
   //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
   
 }
@@ -153,6 +155,11 @@ function gesture(){
       joe.dx=0;
       joe.frm=2;
       joe.spr=j_punch;
+    }
+    if( swipe=='up'){ // makes joe kick
+      joe.dx=0;
+      joe.frm=1;
+      joe.spr=j_kick;
     }
   }
   
