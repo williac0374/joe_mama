@@ -35,6 +35,7 @@ mx = my = 0;
 canvas.width=640;
 canvas.height=360;
 j_walk=null;joe=null
+died=false;
 setTimeout(function(){canvas.style.width = window.innerWidth+'px';canvas.style.height = window.innerHeight+'px'},10);
 function start(){
   ///sets up sprites
@@ -61,8 +62,8 @@ j_punch.onload = function () {j_punch.loaded=true};
 j_kick.onload = function () {j_kick.loaded=true};
   
   ///////////////////////////////////////////////////////////
-joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0}
-punchy = {x:0, y:146, dx:0.1, spr:p_spr, frm:0}
+joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100}
+punchy = {x:0, y:146, dx:0.1, spr:p_spr, frm:0, hp:100}
   setInterval(function(){
     if(joe.spr==j_walk || joe.spr==j_walk_hurt){
       if(joe.dx!=0){
@@ -83,54 +84,80 @@ function change_frame(){
 setTimeout(function(){change_frame()},Math.random()*2000);
 }
 function loop(){
-  if(punchy.frm==0){
-  punchy.dx = choose(0,0.1,0.3,0,1)
-  }
-  punchy.x+=punchy.dx // moves punchy if applicable
-  // collision detection
-  if(punchy.x>joe.x-32 && joe.spr==j_walk){ // joe is hit while walking
-    joe.x+=40
-    joe.spr=j_walk_hurt
-    joe.frm = 3;
-    joe.dx=0;
-  punchy.frm=1;
+  if(died==false){
+    if(punchy.frm==0){
+      punchy.dx = choose(0,0.1,0.3,0,1)
+    }
+    punchy.x+=punchy.dx // moves punchy if applicable
+    // collision detection
+    if(punchy.x>joe.x-32 && joe.spr==j_walk){ // joe is hit while walking
+      joe.x+=40
+      joe.hp-=20
+      joe.spr=j_walk_hurt
+      joe.frm = 3;
+      joe.dx=0;
+      punchy.frm=1;
     setTimeout(function(){punchy.frm=0},600);
     setTimeout(function(){joe.spr=j_walk},600);
-  }
-  if(punchy.x>joe.x-60 && joe.spr==j_punch){ // joe is hit while punching and extended
-  if(joe.frm==3){punchy.x-=64;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2}
-  }
-  if(punchy.x>joe.x-74 && joe.spr==j_kick){ // joe is hit while kicking and extended
-  if(joe.frm==2){punchy.x-=128;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2}
-  }
-  
-  if(joe.spr==j_walk){
-    if(end.x>0){
-      if(Math.abs((joe.x+64) - end.x)<10){
-        joe.dx=0;
-      }
     }
-    joe.x+=joe.dx
-  } // moves joe if applicable
-  
-if(joe.spr==j_punch&&joe.frm==4){joe.spr=j_walk} // after punch sprite change
-if(joe.spr==j_kick&&joe.frm==3){joe.spr=j_walk} // after kick sprite change
-  input()
+    if(punchy.x>joe.x-60 && joe.spr==j_punch){ // joe is hit while punching and extended
+    if(joe.frm==3){punchy.x-=64;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2;joe.hp-=2}
+    }
+    if(punchy.x>joe.x-74 && joe.spr==j_kick){ // joe is hit while kicking and extended
+    if(joe.frm==2){punchy.x-=128;punchy.dx=0;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2;joe.hp-=2}
+    }
+    
+    if(joe.spr==j_walk){
+      if(end.x>0){
+        if(Math.abs((joe.x+64) - end.x)<10){
+          joe.dx=0;
+        }
+      }
+      joe.x+=joe.dx
+    } // moves joe if applicable
+    
+  if(joe.spr==j_punch&&joe.frm==4){joe.spr=j_walk} // after punch sprite change
+  if(joe.spr==j_kick&&joe.frm==3){joe.spr=j_walk} // after kick sprite change
+    input()
+    if(joe.hp<=0){
+      died=true;
+      setTimeout(function(){
+        draw_set_color(255,0,0);
+        draw_text(0, 0, "YOU DIED!!!!", 100)
+        run=false;
+      },100)
+      
+      setTimeout(function(){
+      if(confirm('PLAY AGAIN?')){location.reload()}
+      },6000)
+    }
+  }
+  document.title=joe.hp
 }
-
+function draw_hbar(who,xoff,yoff,width,height,hp){
+  
+  draw_set_color(255,255,255)
+  draw_rectangle(who.x+xoff, who.y+yoff, width,height,false,0,0,0)
+  draw_set_color(0,255,0)
+  draw_set_linewidth(height*0.8)
+  draw_line(who.x+xoff+2, who.y+yoff+height*0.5, (who.x+xoff+(width*(hp/100)))-2 , who.y+yoff+height*0.5)
+  //draw_set_linedash(dash)
+  
+}
 function draw(){
   draw_image(b_drop,0,0,canvas.width,canvas.height)
-  draw_strip(joe.x,joe.y,joe.spr,joe.frm)
+  
+if(joe.hp>0){draw_strip(joe.x,joe.y,joe.spr,joe.frm);draw_hbar(joe,0,-20,128,16,joe.hp)}
   draw_strip(punchy.x,punchy.y,punchy.spr,punchy.frm)
   //draw_text(100,100,mouse_x+' , '+mouse_y,24)
-  draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
-  draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
+ // draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
+ // draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
   //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
   // joes sprite size visualizer
-  draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
+  //draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
 }
-  var scaleX = 1
-  var scaleY = 1
+var scaleX = 1
+var scaleY = 1
 function input(){
   /////////////////////////////////////////////
   ///ZOOM CORRECTION
@@ -168,9 +195,9 @@ function gesture(){
     }
     if( swipe=='none'){ // makes joe walk towards touch
       if(end.x<joe.x){
-        if(Math.abs((joe.x+64) - end.x)<200){joe.dx = -1}else{joe.dx = -2}
+      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = -1}else{joe.dx = -2}
       }else{
-        if(Math.abs((joe.x+64) - end.x)<200){joe.dx = 1}else{joe.dx = 2}
+      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = 1}else{joe.dx = 2}
       }
       joe.spr=j_walk;
     }
