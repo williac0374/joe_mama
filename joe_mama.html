@@ -31,7 +31,7 @@ canvas {
 
 <script>
 window.onerror = function(message, source, lineno, colno, error) {let code = localStorage.getItem("codeIDE");let getScriptLine = code => code.split("<script>")[0].split("\n").length;let ln = (getScriptLine(code)-1) + lineno;msg = message+" , line :"+ ln+" , column: " +colno+ " , " +error;let errorCursor = {"line":ln,"ch":colno,"sticky":null};localStorage.setItem("errorCursorIDE",JSON.stringify(errorCursor));alert(msg);window.close();}
-
+mx = my = 0;
 canvas.width=640;
 canvas.height=360;
 j_walk=null;joe=null
@@ -40,9 +40,17 @@ function start(){
   ///sets up sprites
   b_drop = draw_set_image('joeParts/joe_background.png')
   
+  p_spr = draw_set_image('joeParts/punchy2.png')
+  p_spr.loaded=false;
+p_spr.onload = function () {p_spr.loaded=true};
+  
   j_walk =  draw_set_image('joeParts/joe_walking.png');
   j_walk.loaded=false;
 j_walk.onload = function () {j_walk.loaded=true};
+  
+    j_walk_hurt =  draw_set_image('joeParts/joe_walking_hurt.png');
+  j_walk_hurt.loaded=false;
+j_walk_hurt.onload = function () {j_walk_hurt.loaded=true};
   
   j_punch =  draw_set_image('joeParts/joe_punching.png');
   j_punch.loaded=false;
@@ -53,7 +61,8 @@ j_punch.onload = function () {j_punch.loaded=true};
 j_kick.onload = function () {j_kick.loaded=true};
   
   ///////////////////////////////////////////////////////////
-joe = {x:canvas.width/2, y:270-128, dx:1, spr:j_kick, frm:0}
+joe = {x:canvas.width/2, y:146, dx:-1, spr:j_walk, frm:0}
+punchy = {x:175, y:146, dx:1, spr:p_spr, frm:0}
   setInterval(function(){
     joe.frm++
     if(joe.frm>=joe.spr.width/joe.spr.height)joe.frm=0
@@ -63,24 +72,37 @@ start = {x:0,y:0}
 end = {x:0,y:0}
 }
 function change_frame(){
-  joe.spr=choose(j_walk,j_punch,j_kick)
-  joe.dx*=-1
+  joe.spr=choose(j_walk,j_walk,j_walk,j_walk,j_walk,j_walk,j_punch,j_kick,j_punch,j_kick)
+  //joe.dx*=-1
 setTimeout(function(){change_frame()},Math.random()*2000);
 }
 function loop(){
+  punchy.x+=choose(0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3)
+  if(punchy.x>joe.x-32 && joe.spr==j_walk){
+    joe.x+=40
+    joe.spr=j_walk_hurt
+    punchy.frm=1;setTimeout(function(){punchy.frm=0},600)
+  }
+  if(punchy.x>joe.x-60 && joe.spr==j_punch){
+    if(joe.frm==3){punchy.x-=32;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2}
+  }
+  if(punchy.x>joe.x-74 && joe.spr==j_kick){
+    if(joe.frm==2){punchy.x-=64;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2}
+  }
+  
 if(joe.spr==j_walk){joe.x+=joe.dx}
-if(joe.x>canvas.width-128){joe.dx*=-1}
-if(joe.x<128){joe.dx*=-1}
   input()
-  document.title = mouse_y
 }
 
 function draw(){
   draw_image(b_drop,0,0,canvas.width,canvas.height)
   draw_strip(joe.x,joe.y,joe.spr,joe.frm)
+  draw_strip(punchy.x,punchy.y,punchy.spr,punchy.frm)
   //draw_text(100,100,mouse_x+' , '+mouse_y,24)
   draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
   draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
+  //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
+  
 }
 
 function input(){
@@ -125,4 +147,5 @@ function draw_strip(x,y,strip,frame){
   
   </body>
   </html>
+  
   
