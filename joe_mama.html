@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+by<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -84,10 +84,10 @@ function loop(){
     punchy.frm=1;setTimeout(function(){punchy.frm=0},600)
   }
   if(punchy.x>joe.x-60 && joe.spr==j_punch){
-    if(joe.frm==3){punchy.x-=32;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2}
+    if(joe.frm==3){punchy.x-=64;punchy.frm=2;setTimeout(function(){punchy.frm=0},600)}else{joe.x+=2}
   }
   if(punchy.x>joe.x-74 && joe.spr==j_kick){
-    if(joe.frm==2){punchy.x-=64;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2}
+    if(joe.frm==2){punchy.x-=128;punchy.frm=2;setTimeout(function(){punchy.frm=0},800)}else{joe.x+=2}
   }
   
 if(joe.spr==j_walk){joe.x+=joe.dx}
