@@ -47,30 +47,16 @@ function start(){
   b_drop = draw_set_image('joeParts/joe_background.png')
   
   p_spr = draw_set_image('joeParts/punchy2.png')
-  p_spr.loaded=false;
-p_spr.onload = function () {p_spr.loaded=true};
   j_head = draw_set_image('joeParts/head.png')
   j_walk =  draw_set_image('joeParts/joe_walking.png');
-  j_walk.loaded=false;
-j_walk.onload = function () {j_walk.loaded=true};
-  
   j_walk_hurt =  draw_set_image('joeParts/joe_walking_hurt.png');
-  j_walk_hurt.loaded=false;
-j_walk_hurt.onload = function () {j_walk_hurt.loaded=true};
-  
   j_punch =  draw_set_image('joeParts/joe_punching.png');
-  j_punch.loaded=false;
-j_punch.onload = function () {j_punch.loaded=true};
-  
   j_kick =  draw_set_image('joeParts/joe_kicking.png');
-  j_kick.loaded=false;
-j_kick.onload = function () {j_kick.loaded=true};
-  
   ///////////////////////////////////////////////////////////
-joe = {x:canvas.width/2, y:146, dx:0, spr:j_walk, frm:0, hp:100};
+joe = {x:canvas.width/2, y:146, tx:canvas.width/2+64, ty:0, dx:0, spr:j_walk, frm:0, hp:100};
 icon = {x:canvas.width-200,y:10,spr:j_head}
   for(let i = 0; i < 100; i ++){
-nmes.push({x:irandom(-10000), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
+  nmes.push({x:irandom(-10000), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
   }
   setInterval(function(){
     if(joe.spr==j_walk || joe.spr==j_walk_hurt){
@@ -82,15 +68,9 @@ nmes.push({x:irandom(-10000), y:146, dx:0.1, spr:p_spr, frm:0, hp:100})
     }
     if(joe.frm>=joe.spr.width/joe.spr.height)joe.frm=0
   },200);
-  //change_frame();
-start = {x:-100,y:0}
-end = {x:-100,y:0}
+  
 }
-function change_frame(){
-  joe.spr=choose(j_walk,j_walk,j_walk,j_walk,j_walk,j_walk,j_punch,j_kick,j_punch,j_kick)
-  //joe.dx*=-1
-setTimeout(function(){change_frame()},Math.random()*2000);
-}
+
 function loop(){
   if(died==false){
     for(let i = nmes.length; i > 0; i--){
@@ -103,6 +83,7 @@ function loop(){
         joe.spr=j_walk_hurt
         joe.frm = 3;
         joe.dx=0;
+        joe.tx = joe.x+94
         nmes[i-1].frm=1;
         shake=true
       setTimeout(function(){nmes[i-1].frm=0},600);
@@ -144,16 +125,17 @@ function loop(){
       
     }
     if(joe.spr==j_walk){
-      if(end.x>0){
-        if(Math.abs((joe.x+64) - end.x)<10){
-          joe.dx=0;
-        }
-      }
       joe.x+=joe.dx
     } // moves joe if applicable
     
-  if(joe.spr==j_punch&&joe.frm==4){joe.spr=j_walk} // after punch sprite change
-  if(joe.spr==j_kick&&joe.frm==3){joe.spr=j_walk} // after kick sprite change
+    if(joe.spr==j_punch&&joe.frm==4){
+      joe.spr=j_walk;
+      joe.tx = joe.x+94;
+    } // after punch sprite change
+    if(joe.spr==j_kick&&joe.frm==3){
+      joe.spr=j_walk;
+      joe.tx = joe.x+94;
+    } // after kick sprite change
     input()
     if(joe.hp<=0){
       died=true;
@@ -168,7 +150,21 @@ function loop(){
     }
   }
   joe.hp+=0.01
-  if(joe.hp>100){joe.hp=100}
+if(joe.hp>100){joe.hp=100}
+    if(Math.abs((joe.x+94)-joe.tx)<5){ // within 50 pixels of target x
+      joe.dx=0;
+      //joe.frm=0;
+      joe.tx = joe.x+94
+    }else{
+      
+      if(joe.x+94<joe.tx){
+        joe.dx=2;
+      }
+      if(joe.x+94>joe.tx){
+        joe.dx=-2;
+      }
+    }
+  document.title = joe.dx
 }
 function draw_hbar(who,xoff,yoff,width,height,hp){
   
@@ -180,13 +176,15 @@ function draw_hbar(who,xoff,yoff,width,height,hp){
   //draw_set_linedash(dash)
   
 }
+spin=0
 function draw(){
   if(shake==true){
-     canvas.style.transform = `translate(${irandom(3)}px, ${irandom(3)}px)`;
+  canvas.style.transform = `translate(${irandom(3)}px, ${irandom(3)}px)`;
   }
   draw_image(b_drop,0,0,canvas.width,canvas.height)
   
   draw_image(icon.spr,icon.x,icon.y)
+  //draw_strip(x,y,strip,frame,w,h,rot,ox,oy)
   if(joe.hp>0){draw_strip(joe.x,joe.y,joe.spr,joe.frm);
   draw_hbar(icon,40,6,128,16,joe.hp)}
   for(let i = nmes.length; i > 0; i--){
@@ -195,18 +193,19 @@ function draw(){
   }
   draw_set_color(0,0,0)
   if(nmes.length>0){
-  draw_text(10,10, nmes.length+' punchies left!',24)
+    draw_text(10,10, nmes.length+' punchies left!',24)
   }else{
     draw_text(10,10, ' no punchies left WINNER!!!!!!',24)
   }
   // draw_set_color(0,255,0);draw_circle(start.x, start.y, 12, false)
   // draw_set_color(255,0,0);draw_circle(end.x, end.y, 12, false)
-  //draw_set_color(255,0,0);draw_text(100,100,floor(mx-joe.x),24)
+  draw_set_color(255,0,0);draw_text(100,100,swipe,24)
   // joes sprite size visualizer
-  //draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
+  draw_set_color(255,255,255);draw_rectangle(joe.x, joe.y, 128, 128,true,0,0,0)
 }
-var scaleX = 1
-var scaleY = 1
+var scaleX = 1;
+var scaleY = 1;
+swipe = null
 function input(){
   /////////////////////////////////////////////
   ///ZOOM CORRECTION
@@ -217,37 +216,10 @@ function input(){
   mx = mouse_x  * scaleX;
   my = mouse_y  * scaleY;
   /////////////////////////////////////////////
-  gesture();
-}
-
-
-
-function gesture(){
-  let dis = 50;
-  let dir = 0;
-  let swipe='none'
-  
-  if(mouse_check_pressed()){
-    start.x = mx;
-    start.y = my;
-  }
-  if(mouse_check_released()){
-    swipe='none'
-    end.x = mx;
-    end.y = my;
-    if(point_distance(start.x,start.y,end.x,end.y)>dis){
-      dir = point_direction(start.x,start.y,end.x,end.y)
-    if(dir>45 && dir<135){swipe='up'}
-    if(dir<=45 && dir>=-45){swipe='right'}
-    if(dir<-45 && dir>-135){swipe='down'}
-    if(dir>=135 || dir<=-135){swipe='left'}
-    }
+  swipe = swiped(50)
+  if(swipe!=null){
     if( swipe=='none'){ // makes joe walk towards touch
-      if(end.x<joe.x){
-      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = -1}else{joe.dx = -2}
-      }else{
-      if(Math.abs((joe.x+64) - end.x)<200){joe.dx = 1}else{joe.dx = 2}
-      }
+      joe.tx = mx
       joe.spr=j_walk;
     }
     if( swipe=='left'){ // makes joe punch
@@ -262,25 +234,19 @@ function gesture(){
     }
   }
   
-  
 }
 
 
-function draw_strip(x,y,strip,frame){
-  var scale = 1
-  if (strip.loaded==false) return;
-  let frames = strip.width/strip.height
-  if(frame>=frames) frame=frames-1 // locks it at last frame if asked to draw more frames than it has
-  //draw_image(img,x,y,w,h,rot,ox,oy,source_x,source_y,source_w,source_h){
-    draw_image(strip,x,y,strip.height*scale,strip.height*scale,0,0,0,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
-    
-    
-  }
-  </script>
-  <script type='text/javascript' src='engine.js'></script>
-  
-  </body>
-  </html>
-  
-  
-  
+
+
+
+
+
+</script>
+<script type='text/javascript' src='engine.js'></script>
+
+</body>
+</html>
+
+
+
