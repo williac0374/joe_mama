@@ -191,13 +191,13 @@ function swiped(sensitivy){
     let endY = -100;
   };
   if(mouse_check_pressed()){
-    startX = mx;
-    startY = my;
+    startX = mouse_x;
+    startY = mouse_y;
   };
   if(mouse_check_released()){
     swiped='none'
-    endX = mx;
-    endY = my;
+    endX = mouse_x;
+    endY = mouse_y;
     if(point_distance(startX,startY,endX,endY)>dis){
       dir = point_direction(startX,startY,endX,endY);
     if(dir>45 && dir<135){swiped='up'};
@@ -309,6 +309,15 @@ function wheel(e) {
 };
 // The main game loop
 function main() {
+  /////////////////////////////////////////////
+  ///ZOOM CORRECTION
+  //////////////////////////////////////////////
+  var rect = canvas.getBoundingClientRect()
+  scaleX = canvas.width / rect.width;
+  scaleY = canvas.height / rect.height;
+  mouse_x = mouse_x  * scaleX;
+  mouse_y = mouse_y  * scaleY;
+  /////////////////////////////////////////////
   var now = Date.now();
   var delta = now - then;
   timeShift = delta / 1000
