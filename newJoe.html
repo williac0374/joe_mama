@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Template</title>
+<style>
+body{
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
+  
+}
+canvas {
+  //border: 2px solid #00f;
+  width:100vw;
+  height:100vh;
+  background-color: white;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+window.onerror = function(message, source, lineno, colno, error) {let code = localStorage.getItem("codeIDE");let getScriptLine = code => code.split("<script>")[0].split("\n").length;let ln = (getScriptLine(code)-1) + lineno;msg = message+" , line :"+ ln+" , column: " +colno+ " , " +error;let errorCursor = {"line":ln,"ch":colno,"sticky":null};localStorage.setItem("errorCursorIDE",JSON.stringify(errorCursor));alert(msg);window.close();}
+canvas.width=640;
+canvas.height=320;
+frm = 0
+function start(){
+  joe={
+    hp:100,
+    x:128,
+    y:128,
+    dx:0,
+    dy:0,
+    w:128,
+    h:128,
+    sprites:[draw_set_image('joeParts/joe_walking.png'),draw_set_image('joeParts/joe_walking_hurt.png	'),draw_set_image('joeParts/joe_punching.png'),draw_set_image('joeParts/joe_kicking.png')],
+    sprite:0,
+    frame:0,
+    anispeed:125,
+    rot:0,
+    ox:54,
+    oy:74,
+    tx:null,
+    ty:null,
+    colBox:function(){
+      this.colx = this.x-32;
+      this.coly = this.y-50;
+      this.colw = 64;
+      this.colh = 110;
+    },
+    animate:function(){
+      if (this.interval) return;
+      this.frame++;
+      this.interval = setInterval(function(){
+        this.frame++;
+        let image = this.sprites[this.sprite]
+        let f_num = image.width/image.height;
+      if(this.frame==f_num){this.frame=0}
+        
+      }.bind(this), this.anispeed);
+    },
+    stopAnimation:function(){
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+    },
+    draw:function(){
+      draw_strip(this.x,this.y,this.sprites[this.sprite],this.frame,this.w,this.h,this.rot,this.ox,this.oy)
+    },
+    move:function(){
+      if(this.tx!=null){
+        if(this.x>this.tx+20){this.dx = -1}
+        if(this.x<this.tx-20){this.dx = 1}
+        if(this.x>this.tx-20 && this.x<this.tx+20){this.dx = 0}
+        
+      }
+      this.x += this.dx;
+      this.y += this.dy;
+      this.colBox(); // keeps the collision coordinates updated
+    if(this.dx==0){this.stopAnimation();this.frame=0}
+    else{this.animate()}
+    },
+  }
+  
+  
+  
+}
+function loop(){
+
+  let swipe = swiped(50)
+  if(swipe=='none'){joe.tx=mouse_x;joe.sprite=0}
+  if(swipe=='left'){joe.tx=joe.x;joe.sprite=2}
+  joe.move()
+}
+function draw(){
+  draw_set_color(200,200,200);
+  draw_rectangle(0, 0, canvas.width, canvas.height, false,0,0,0)
+  
+  
+  draw_set_color(0,0,255);draw_rectangle(joe.colx, joe.coly, joe.colw, joe.colh,true,0,0,0)
+  joe.draw();
+  draw_set_color(0,0,0);draw_circle(joe.x, joe.y, 3, false)
+}
+function input(){
+  
+  
+}
+</script>
+<script type='text/javascript' src='engine.js'></script>
+</body>
+</html>
