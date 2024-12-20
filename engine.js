@@ -86,9 +86,9 @@ if(rot==null){rot=0}
 if(ox==null){ox=0}
 if(oy==null){oy=0}
   if (strip.loaded==false) return;
-  let frames = w/h
+  let frames = strip.width/strip.height
   if(frame>=frames) frame=frames-1 // locks it at last frame if asked to draw more frames than it has
-  draw_image(strip,x,y,h,h,rot,ox,oy,(w/frames)*frame,0,w/frames,h)
+  draw_image(strip,x,y,w,h,rot,ox,oy,(strip.width/frames)*frame,0,strip.width/frames,strip.height)
 }
 function draw_image(img,x,y,w,h,rot,ox,oy,source_x,source_y,source_w,source_h){
 if(w==null){w=img.width}
@@ -102,7 +102,8 @@ if(source_h==null){source_h=img.height}
   ctx.globalAlpha =master_alpha;
   if(rot!=null){
     ctx.save();
-    ctx.translate(x+ox,y+oy);
+    //ctx.translate(x+ox,y+oy);
+    ctx.translate(x,y);
     ctx.rotate(rot*Math.PI/180);//tu_r2d = -180 / Math.PI, tu_d2r = Math.PI / -180
     //ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     ctx.drawImage(img,source_x, source_y, source_w, source_h, -ox,-oy,w,h);
@@ -116,7 +117,7 @@ function draw_rectangle(x, y, w, h,outline,rot,ox,oy) {
   ctx.globalAlpha =master_alpha;
   if(rot!=null){
     ctx.save();
-    ctx.translate(x+ox,y+oy);
+    ctx.translate(x,y);
     ctx.rotate(rot*Math.PI/180);
     ctx.beginPath();
     if (outline) ctx.strokeRect( -ox,-oy,w,h);
@@ -269,7 +270,7 @@ function mMove(e) {
   if (e.touches) {
     x = e.touches[0].clientX;
     y = e.touches[0].clientY;
-  } 
+  }
   // Otherwise use mouse input
   else if (e.pageX != undefined && e.pageY != undefined) {
     x = e.pageX;
