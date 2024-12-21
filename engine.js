@@ -28,6 +28,9 @@ function make_sound(_src,buffers){
     for(let i = 0; i < buffers; i++ ){
       temp[i] = document.createElement('audio');
       temp[i].setAttribute('src', _src);
+        temp[i].onerror = function() {
+    alert("Error: Failed to load: "+_src);
+};
     }
     return temp;
   }
