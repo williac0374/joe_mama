@@ -76,6 +76,9 @@ function draw_set_image(file){
   let temp = new Image();
   temp.src = file;
   temp.loaded=false;
+  temp.onerror = function() {
+    alert("Error: Failed to load: "+file);
+};
 temp.onload = function () {temp.loaded=true};
   return temp;
 }
@@ -104,8 +107,9 @@ if(source_h==null){source_h=img.height}
     ctx.save();
     //ctx.translate(x+ox,y+oy);
     ctx.translate(x,y);
+    if(rot!=0){
     ctx.rotate(rot*Math.PI/180);//tu_r2d = -180 / Math.PI, tu_d2r = Math.PI / -180
-    //ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+    }
     ctx.drawImage(img,source_x, source_y, source_w, source_h, -ox,-oy,w,h);
     ctx.restore()
   }else{
