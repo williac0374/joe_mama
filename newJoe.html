@@ -30,6 +30,7 @@ canvas.width=640;
 canvas.height=320;
 frm = 0
 function start(){
+  anim = false
   joe={
     hp:100,
     x:128,
@@ -52,15 +53,29 @@ function start(){
       this.coly = this.y-50;
       this.colw = 64;
       this.colh = 110;
+      if(this.sprite==2){ // changing collision for punching
+        this.colx = this.x-38;
+        this.colw = 70;
+      }
+      if(this.sprite==3){ // changing collision for kicking
+        this.colx = this.x-50;
+        this.colw = 84;
+      }
     },
     animate:function(){
       if (this.interval) return;
       this.frame++;
+      anim=true
       this.interval = setInterval(function(){
         this.frame++;
         let image = this.sprites[this.sprite]
         let f_num = image.width/image.height;
-      if(this.frame==f_num){this.frame=0}
+        if(this.frame==f_num){ // this cycles the sprites thru thier frames
+          this.frame=0;
+          this.sprite=0; // this handles after punch/kick/hurt transition to walk
+          
+          
+        }
         
       }.bind(this), this.anispeed);
     },
@@ -68,6 +83,7 @@ function start(){
       if (this.interval) {
         clearInterval(this.interval);
         this.interval = null;
+        anim=false
       }
     },
     draw:function(){
@@ -75,15 +91,15 @@ function start(){
     },
     move:function(){
       if(this.tx!=null){
-        if(this.x>this.tx+20){this.dx = -1}
-        if(this.x<this.tx-20){this.dx = 1}
-        if(this.x>this.tx-20 && this.x<this.tx+20){this.dx = 0}
+      if(this.x>this.tx+20){this.dx = -1}
+      if(this.x<this.tx-20){this.dx = 1}
+      if(this.x>this.tx-20 && this.x<this.tx+20){this.dx = 0}
         
       }
       this.x += this.dx;
       this.y += this.dy;
       this.colBox(); // keeps the collision coordinates updated
-    if(this.dx==0){this.stopAnimation();this.frame=0}
+    if(this.dx==0&&this.sprite==0){this.stopAnimation();this.frame=0}
     else{this.animate()}
     },
   }
@@ -92,10 +108,11 @@ function start(){
   
 }
 function loop(){
-
+  
   let swipe = swiped(50)
-  if(swipe=='none'){joe.tx=mouse_x;joe.sprite=0}
-  if(swipe=='left'){joe.tx=joe.x;joe.sprite=2}
+if(swipe=='none'){joe.tx=mouse_x;joe.sprite=0;joe.frame=0}
+if(swipe=='left'){joe.tx=joe.x;joe.sprite=2;joe.frame=0}
+if(swipe=='up'){joe.tx=joe.x;joe.sprite=3;joe.frame=0}
   joe.move()
 }
 function draw(){
@@ -106,11 +123,9 @@ function draw(){
   draw_set_color(0,0,255);draw_rectangle(joe.colx, joe.coly, joe.colw, joe.colh,true,0,0,0)
   joe.draw();
   draw_set_color(0,0,0);draw_circle(joe.x, joe.y, 3, false)
+  draw_set_color(0,120,120);draw_text(22, 22, anim+' , '+joe.dx+' , '+joe.frame, 24)
 }
-function input(){
-  
-  
-}
+
 </script>
 <script type='text/javascript' src='engine.js'></script>
 </body>
