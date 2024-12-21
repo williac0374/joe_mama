@@ -102,28 +102,31 @@ function start(){
     if(this.dx==0&&this.sprite==0){this.stopAnimation();this.frame=0}
     else{this.animate()}
     },
-  }
+    loop:function(){
+      let swipe = swiped(50)
+    if(swipe=='none'){this.tx=mouse_x;this.sprite=0;this.frame=0}
+    if(swipe=='left'){this.tx=this.x;this.sprite=2;this.frame=0}
+    if(swipe=='up'){this.tx=this.x;this.sprite=3;this.frame=0}
+      this.move()
+    }
   
-  
-  
+}
+
+
+
 }
 function loop(){
-  
-  let swipe = swiped(50)
-if(swipe=='none'){joe.tx=mouse_x;joe.sprite=0;joe.frame=0}
-if(swipe=='left'){joe.tx=joe.x;joe.sprite=2;joe.frame=0}
-if(swipe=='up'){joe.tx=joe.x;joe.sprite=3;joe.frame=0}
-  joe.move()
+  joe.loop();
 }
+
+
 function draw(){
   draw_set_color(200,200,200);
   draw_rectangle(0, 0, canvas.width, canvas.height, false,0,0,0)
-  
-  
   draw_set_color(0,0,255);draw_rectangle(joe.colx, joe.coly, joe.colw, joe.colh,true,0,0,0)
   joe.draw();
   draw_set_color(0,0,0);draw_circle(joe.x, joe.y, 3, false)
-  draw_set_color(0,120,120);draw_text(22, 22, anim+' , '+joe.dx+' , '+joe.frame, 24)
+  draw_set_color(0,120,120);draw_text(22, 22, "fps: "+fps, 24)
 }
 
 </script>
