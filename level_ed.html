@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic Template</title>
+<style>
+body{
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+  height: 90vh;
+  background-color: black;
+  overflow: scroll;
+  
+}
+canvas {
+  //border: 2px solid #00f;
+  // width:100vw;
+  //height:100vh;
+  background-color: white;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+window.onerror = function(message, source, lineno, colno, error) {let code = localStorage.getItem("codeIDE");let getScriptLine = code => code.split("<script>")[0].split("\n").length;let ln = (getScriptLine(code)-1) + lineno;msg = message+" , line :"+ ln+" , column: " +colno+ " , " +error;let errorCursor = {"line":ln,"ch":colno,"sticky":null};localStorage.setItem("errorCursorIDE",JSON.stringify(errorCursor));alert(msg);window.close();}
+
+canvas.width=640;
+canvas.height=320;
+gSize=16
+tile = ['J','B','P']
+tile_index = 0
+cursor = {
+  x:0,
+  y:0,
+  w:gSize,
+  h:gSize,
+  draw:function(){
+    draw_set_linewidth(6);
+    draw_set_color(0,0,128);
+    draw_set_linedash([]);
+    draw_rectangle(this.x, this.y, this.w, this.h,true,0,0,0)
+    draw_centered_text(this.x+this.w/2, this.y+this.h/2, tile[tile_index], this.h/2)
+  },
+  move:function(){
+    this.x = floor(mouse_x/gSize)*gSize;
+    this.y = floor(mouse_y/gSize)*gSize;
+  }
+}
+tiles = [];
+no_joe=true
+function make_tile(label){
+if(label=='J'){no_joe=false}
+  var free=true
+  for(let i = 0; i < tiles.length; i++){
+    if(tiles[i].x==cursor.x && tiles[i].y==cursor.y){ // already a tile there
+      free=false
+      tiles[i].label = label; // changes label of prexisting tile here!!
+    }
+  }
+  if(free==true){ // makes a new tile here!!
+    let temp = {
+      x:cursor.x,
+      y:cursor.y,
+      w:gSize,
+      h:gSize,
+      label:label,
+      draw:function(){
+        draw_set_linewidth(2);
+        draw_set_color(128,128,128);
+        draw_set_linedash([]);
+        draw_rectangle(this.x, this.y, this.w, this.h,false,0,0,0)
+        draw_set_color(0,0,0);
+        draw_centered_text(this.x+this.w/2, this.y+this.h/2, this.label, this.h/2)
+      },
+    }
+    tiles.push(temp);// makes a new tile
+  }
+}
+
+
+function draw_tiles(){
+  for(let i = 0; i < tiles.length; i++){
+    tiles[i].draw()
+  }
+}
+function start(){
+  hide_mouse();
+}
+
+function loop(){
+  document.title = cursor.x+' , '+cursor.y
+  cursor.move();
+if(mouse_check_pressed()){make_tile(tile[tile_index])}
+  // change current selected tile
+  tile_index+=wheelDir;
+if(tile_index<0){tile_index=tile.length-1}
+if(tile_index>tile.length-1){tile_index=0}
+  wheelDir=0;
+if(keyboard_check_pressed(vk_escape)){level_export()}
+}
+
+function draw(){
+  draw_tiles();
+  // draw grid
+  draw_set_linewidth(1);
+  draw_set_color(0,0,128);
+  draw_set_linedash([10,3]);
+  // draw vertical lines
+  for(let i = 0; i < canvas.width; i+=gSize){
+    draw_line(i, 0, i, canvas.height)
+  }
+  // draw horizontal lines
+  for(let i = 0; i < canvas.height; i+=gSize){
+    draw_line(0, i, canvas.width, i)
+  }
+  cursor.draw();
+  
+}
+exp_tiles = []
+function level_export(){
+  if(no_joe==true){
+    alert('You need to put a joe in the level!!!!')
+  }else{
+    var JX = 0
+    var JY = 0
+    var mod = 32/gSize;
+    var tempX = 0;
+    var tempY = 0;
+    var tempL = '';
+    for(let i = 0; i < tiles.length; i++){ // adjusts to newJoe's 32 pixel grid
+      tempX = tiles[i].x* mod;
+      tempY = tiles[i].y* mod;
+      tempL = tiles[i].label
+      exp_tiles.push({x:tempX,y:tempY,label:tempL})
+    }
+    for(let i = 0; i < exp_tiles.length; i++){ // gets joes location
+      if(exp_tiles[i].label=='J'){
+        JX = exp_tiles[i].x;
+        JY = exp_tiles[i].y;
+      }
+    }
+    var xoff = JX - 320;
+    var yoff = JY - 160;
+    for(let i = 0; i < exp_tiles.length; i++){ // sets all to joes location of 320,160
+      exp_tiles[i].x-=xoff;
+      exp_tiles[i].y-=yoff;
+    }
+    var l = JSON.stringify(exp_tiles)
+    var myWindow = window.open();
+    myWindow.document.write(l);
+  }
+}
+
+
+</script>
+<script type='text/javascript' src='engine.js'></script>
+
+</body>
+</html>
