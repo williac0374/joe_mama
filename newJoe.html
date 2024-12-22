@@ -16,8 +16,8 @@ body{
 }
 canvas {
   //border: 2px solid #00f;
-  width:100vw;
-  height:100vh;
+  // width:100vw;
+  //height:100vh;
   background-color: white;
 }
 </style>
@@ -29,14 +29,15 @@ window.onerror = function(message, source, lineno, colno, error) {let code = loc
 canvas.width=640;
 canvas.height=320;
 frm = 0
+lvl1 = [{"x":320,"y":160,"label":"J"},{"x":448,"y":96,"label":"B"},{"x":448,"y":128,"label":"B"},{"x":448,"y":160,"label":"B"},{"x":448,"y":192,"label":"B"},{"x":448,"y":224,"label":"B"},{"x":448,"y":256,"label":"B"},{"x":416,"y":256,"label":"B"},{"x":384,"y":256,"label":"B"},{"x":352,"y":256,"label":"B"},{"x":320,"y":256,"label":"B"},{"x":288,"y":256,"label":"B"},{"x":256,"y":256,"label":"B"},{"x":224,"y":256,"label":"B"},{"x":192,"y":256,"label":"B"},{"x":160,"y":256,"label":"B"},{"x":192,"y":704,"label":"B"},{"x":160,"y":704,"label":"B"},{"x":96,"y":736,"label":"B"},{"x":128,"y":704,"label":"B"},{"x":96,"y":704,"label":"B"},{"x":64,"y":704,"label":"B"},{"x":64,"y":672,"label":"B"},{"x":32,"y":672,"label":"B"},{"x":0,"y":672,"label":"B"},{"x":0,"y":640,"label":"B"},{"x":-32,"y":640,"label":"B"},{"x":-32,"y":608,"label":"B"},{"x":-64,"y":608,"label":"B"},{"x":-64,"y":576,"label":"B"},{"x":-96,"y":576,"label":"B"},{"x":-96,"y":544,"label":"B"},{"x":-128,"y":544,"label":"B"},{"x":-128,"y":512,"label":"B"},{"x":-160,"y":512,"label":"B"},{"x":-160,"y":480,"label":"B"},{"x":-192,"y":480,"label":"B"},{"x":-192,"y":448,"label":"B"},{"x":-224,"y":448,"label":"B"},{"x":-256,"y":416,"label":"B"},{"x":-224,"y":416,"label":"B"},{"x":-256,"y":384,"label":"B"},{"x":-256,"y":352,"label":"B"},{"x":-288,"y":352,"label":"B"},{"x":-288,"y":320,"label":"B"},{"x":-320,"y":320,"label":"B"},{"x":-320,"y":288,"label":"B"},{"x":-352,"y":288,"label":"B"},{"x":-352,"y":256,"label":"B"},{"x":-384,"y":256,"label":"B"},{"x":-384,"y":224,"label":"B"},{"x":-416,"y":224,"label":"B"},{"x":-416,"y":192,"label":"B"},{"x":-448,"y":192,"label":"B"},{"x":-416,"y":160,"label":"B"},{"x":-448,"y":160,"label":"B"},{"x":-480,"y":160,"label":"B"},{"x":-448,"y":128,"label":"B"},{"x":-480,"y":96,"label":"B"}]
 function start(){
   anim = false
   joe={
     hp:100,
-    x:128,
-    y:128,
+    x:320,
+    y:160,
     dx:0,
-    dy:0,
+    dy:1,
     w:128,
     h:128,
     sprites:[draw_set_image('joeParts/joe_walking.png'),draw_set_image('joeParts/joe_walking_hurt.png	'),draw_set_image('joeParts/joe_punching.png'),draw_set_image('joeParts/joe_kicking.png')],
@@ -52,7 +53,7 @@ function start(){
       this.colx = this.x-32;
       this.coly = this.y-50;
       this.colw = 64;
-      this.colh = 110;
+      this.colh = 104;
       if(this.sprite==2){ // changing collision for punching
         this.colx = this.x-38;
         this.colw = 70;
@@ -89,46 +90,135 @@ function start(){
     draw:function(){
       draw_strip(this.x,this.y,this.sprites[this.sprite],this.frame,this.w,this.h,this.rot,this.ox,this.oy)
     },
-    move:function(){
+    drawCol:function(){
+      draw_set_color(0,0,255);draw_rectangle(this.colx, this.coly, this.colw, this.colh,true,0,0,0);
+    },
+    move:function(lvl){
       if(this.tx!=null){
-      if(this.x>this.tx+20){this.dx = -1}
-      if(this.x<this.tx-20){this.dx = 1}
-      if(this.x>this.tx-20 && this.x<this.tx+20){this.dx = 0}
-        
+      if(this.x>this.tx+80){this.dx = -2}
+      if(this.x<this.tx-80){this.dx = 2}
+      if(this.x>this.tx-20 && this.x<this.tx+20){this.dx = 0; this.tx=null}
       }
-      this.x += this.dx;
-      this.y += this.dy;
       this.colBox(); // keeps the collision coordinates updated
     if(this.dx==0&&this.sprite==0){this.stopAnimation();this.frame=0}
     else{this.animate()}
-    },
-    loop:function(){
-      let swipe = swiped(50)
-    if(swipe=='none'){this.tx=mouse_x;this.sprite=0;this.frame=0}
-    if(swipe=='left'){this.tx=this.x;this.sprite=2;this.frame=0}
-    if(swipe=='up'){this.tx=this.x;this.sprite=3;this.frame=0}
-      this.move()
+      // vertical level collision code
+      var hit=0
+      for(let i = 0; i < lvl.length; i++){
+      if(boxHit({colx:this.colx, coly:this.coly+this.dy, colw:this.colw, colh:this.colh},lvl[i])){
+        hit++
+      }
     }
+    if(hit==0){
+      //gravity
+      this.dy+=0.1
+      this.y += this.dy;
+    }
+            // horizontal level collision code
+      hit=0
+      for(let i = 0; i < lvl.length; i++){
+      if(boxHit({colx:this.colx+this.dx, coly:this.coly, colw:this.colw, colh:this.colh},lvl[i])){
+        hit++
+      }
+    }
+    if(hit==0){
+      this.x += this.dx;
+    }else{
+     this.tx=this.x 
+    }
+    
+  },
+  loop:function(lvl){
+    let swipe = swiped(50)
+  if(swipe=='none'){this.tx=mouse_x;this.sprite=0;this.frame=0}
+  if(swipe=='left'){this.tx=this.x;this.sprite=2;this.frame=0}
+  if(swipe=='up'){this.dy = -4}
+  if(swipe=='right'){this.tx=this.x;this.sprite=3;this.frame=0}
+    this.move(lvl)
+  }
   
 }
+boxSprite = draw_set_image('joeParts/box.png')
+load_level(lvl1)
+}
 
+level = [];
+gSize=0;
+function load_level(lvl){
+for(let i = 0; i < lvl.length; i++){
+  if(lvl[i].label!='J'){
+    temp={
+      x:lvl[i].x,
+      y:lvl[i].y,
+      w:32,
+      h:32,
+      colBox:function(){
+        this.colx = this.x;
+        this.coly = this.y;
+        this.colw = this.w;
+        this.colh = this.h;
+      },
+      sprite: boxSprite,
+      draw:function(){
+        draw_image(this.sprite,this.x,this.y,this.w,this.h)
+      },
+      drawCol:function(){
+        draw_set_color(0,0,255);draw_rectangle(this.colx, this.coly, this.colw, this.colh,true,0,0,0);
+      }
+    }
+    level.push(temp)
+  }
+}
+}
 
+function scroll_level(lvl){
+if(joe.x<220){
+  for(let i = 0; i < lvl.length; i++){
+    lvl[i].x+=-joe.dx;
+    lvl[i].colx+=-joe.dx;
+  }
+  joe.x+=-joe.dx;
+  joe.tx+=-joe.dx;
+}
+ if(joe.y>220 || joe.y<80){
+     for(let i = 0; i < lvl.length; i++){
+    lvl[i].y+=-joe.dy;
+    lvl[i].coly+=-joe.dy;
+  }
+   joe.y+=-joe.dy;
+ }
+  
+}
+function draw_level(lvl){
+for(let i = 0; i < lvl.length; i++){
+  lvl[i].draw();
+  lvl[i].colBox()
+}
+for(let i = 0; i < lvl.length; i++){
+  lvl[i].drawCol();
+}
 
 }
 function loop(){
-  joe.loop();
+joe.loop(level);
+scroll_level(level)
+document.title=joe.x
 }
 
 
 function draw(){
-  draw_set_color(200,200,200);
-  draw_rectangle(0, 0, canvas.width, canvas.height, false,0,0,0)
-  draw_set_color(0,0,255);draw_rectangle(joe.colx, joe.coly, joe.colw, joe.colh,true,0,0,0)
-  joe.draw();
-  draw_set_color(0,0,0);draw_circle(joe.x, joe.y, 3, false)
-  draw_set_color(0,120,120);draw_text(22, 22, "fps: "+fps, 24)
-}
+draw_set_color(200,200,200);
+draw_rectangle(0, 0, canvas.width, canvas.height, false,0,0,0)
 
+joe.draw();
+joe.drawCol()
+draw_level(level)
+draw_set_color(0,0,0);draw_circle(joe.x, joe.y, 3, false)
+draw_set_color(0,120,120);draw_text(22, 22, "fps: "+fps, 24)
+}
+function boxHit(ojb1,obj2) {
+return !(ojb1.coly+ojb1.colh <= obj2.coly || ojb1.coly >= obj2.coly+obj2.colh || ojb1.colx+ojb1.colw <= obj2.colx || ojb1.colx >= obj2.colx+obj2.colw);
+}
 </script>
 <script type='text/javascript' src='engine.js'></script>
 </body>
