@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+< !DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,15 +10,15 @@ body{
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 90vw;
-  height: 90vh;
+  width: 95vw;
+  height: 95vh;
   background-color: black;
   overflow: scroll;
   
 }
 canvas {
   //border: 2px solid #00f;
-  // width:100vw;
+  //width:100vw;
   //height:100vh;
   background-color: white;
 }
@@ -32,7 +32,7 @@ window.onerror = function(message, source, lineno, colno, error) {let code = loc
 canvas.width=640;
 canvas.height=320;
 gSize=16
-tile = ['J','B','P']
+tile = ['J','B','P','[--]']
 tile_index = 0
 cursor = {
   x:0,
@@ -40,11 +40,12 @@ cursor = {
   w:gSize,
   h:gSize,
   draw:function(){
-    draw_set_linewidth(6);
+    //draw_set_linewidth(6);
     draw_set_color(0,0,128);
     draw_set_linedash([]);
-    draw_rectangle(this.x, this.y, this.w, this.h,true,0,0,0)
-    draw_centered_text(this.x+this.w/2, this.y+this.h/2, tile[tile_index], this.h/2)
+    draw_rectangle(this.x, this.y, this.w, this.h,false,0,0,0)
+    draw_set_color(255,255,255);
+    draw_centered_text(this.x+this.w/2, this.y+this.h/2, tile[tile_index], this.h/2*1.5)
   },
   move:function(){
     this.x = floor(mouse_x/gSize)*gSize;
@@ -56,13 +57,16 @@ no_joe=true
 function make_tile(label){
 if(label=='J'){no_joe=false}
   var free=true
-  for(let i = 0; i < tiles.length; i++){
+  for(let i = tiles.length-1; i >-1 ; i--){
     if(tiles[i].x==cursor.x && tiles[i].y==cursor.y){ // already a tile there
       free=false
       tiles[i].label = label; // changes label of prexisting tile here!!
+      if(label=='[--]'){
+        tiles.splice(i,1)
+      }
     }
   }
-  if(free==true){ // makes a new tile here!!
+  if(free==true && label!='[--]'){ // makes a new tile here!!
     let temp = {
       x:cursor.x,
       y:cursor.y,
@@ -74,8 +78,8 @@ if(label=='J'){no_joe=false}
         draw_set_color(128,128,128);
         draw_set_linedash([]);
         draw_rectangle(this.x, this.y, this.w, this.h,false,0,0,0)
-        draw_set_color(0,0,0);
-        draw_centered_text(this.x+this.w/2, this.y+this.h/2, this.label, this.h/2)
+        draw_set_color(255,255,255);
+        draw_centered_text(this.x+this.w/2, this.y+this.h/2, this.label, this.h/2*1.8)
       },
     }
     tiles.push(temp);// makes a new tile
@@ -95,7 +99,10 @@ function start(){
 function loop(){
   document.title = cursor.x+' , '+cursor.y
   cursor.move();
-if(mouse_check_pressed()){make_tile(tile[tile_index])}
+  if(mouse_check()){
+    make_tile(tile[tile_index])
+  }
+  
   // change current selected tile
   tile_index+=wheelDir;
 if(tile_index<0){tile_index=tile.length-1}
@@ -136,7 +143,7 @@ function level_export(){
       tempX = tiles[i].x* mod;
       tempY = tiles[i].y* mod;
       tempL = tiles[i].label
-      exp_tiles.push({x:tempX,y:tempY,label:tempL})
+    exp_tiles.push({x:tempX,y:tempY,label:tempL})
     }
     for(let i = 0; i < exp_tiles.length; i++){ // gets joes location
       if(exp_tiles[i].label=='J'){
